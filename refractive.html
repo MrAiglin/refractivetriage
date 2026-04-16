@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Refractive Triage — Dr Aiglin</title>
+<meta name="theme-color" content="#0a1f1a">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Refractive Triage","short_name":"Refractive","start_url":".","display":"standalone","background_color":"%230a1f1a","theme_color":"%230a1f1a","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%230a1f1a%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22none%22 stroke=%22%2334d399%22 stroke-width=%226%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%2334d399%22/></svg>","sizes":"192x192","type":"image/svg+xml"},{"src":"data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%230a1f1a%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22none%22 stroke=%22%2334d399%22 stroke-width=%226%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%2334d399%22/></svg>","sizes":"512x512","type":"image/svg+xml"}]}'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#061510; --bg:#0a1f1a; --bg-2:#0f2a23; --surface:#133028;
+  --border:#1e4a3c; --border-bright:#2a6b56;
+  --ink:#e8f0ec; --ink-dim:#a8c0b5; --ink-faint:#6b8a7e;
+  --accent:#34d399; --accent-bright:#6ee7b7;
+  --green:#34d399; --green-bg:#0f3d2e;
+  --orange:#f59e0b; --orange-bg:#3d2e0f;
+  --red:#f87171; --red-bg:#3d1515;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter Tight',-apple-system,sans-serif;
+  background:var(--bg);
+  background-image:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(52,211,153,0.08),transparent),radial-gradient(ellipse 60% 40% at 100% 100%,rgba(4,120,87,0.12),transparent),linear-gradient(180deg,var(--bg) 0%,var(--bg-deep) 100%);
+  background-attachment:fixed;
+  color:var(--ink); min-height:100vh;
+  padding:24px 20px; padding-bottom:env(safe-area-inset-bottom,24px);
+  padding-top:max(24px,env(safe-area-inset-top));
+  letter-spacing:-0.005em;
+}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:0.35;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.25 0 0 0 0 0.22 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.container{max-width:720px;margin:0 auto;position:relative;z-index:1}
+
+/* Toggle langue */
+.lang-toggle{position:absolute;top:0;right:0;display:flex;gap:0;background:var(--bg-deep);border:1px solid var(--border);border-radius:3px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:0.7rem;letter-spacing:0.08em}
+.lang-toggle button{padding:6px 12px;background:transparent;border:none;color:var(--ink-faint);cursor:pointer;font-family:inherit;font-size:inherit;letter-spacing:inherit;text-transform:uppercase;transition:all 0.2s}
+.lang-toggle button:hover{color:var(--ink)}
+.lang-toggle button.active{background:var(--accent);color:var(--bg-deep);font-weight:700}
+
+.header{padding:20px 0 36px;border-bottom:1px solid var(--border);margin-bottom:32px;position:relative;padding-right:110px}
+.header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.18em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)}}
+h1{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(1.8rem,5vw,2.6rem);line-height:1.05;letter-spacing:-0.03em;margin-bottom:8px;font-variation-settings:"opsz" 96}
+h1 em{font-style:italic;color:var(--accent-bright);font-weight:300}
+.subtitle{font-size:0.82rem;color:var(--ink-faint);max-width:520px;line-height:1.55}
+
+fieldset{border:1px solid var(--border);border-radius:4px;padding:20px 22px 16px;margin-bottom:16px;background:linear-gradient(180deg,rgba(19,48,40,0.4),rgba(10,31,26,0.2));backdrop-filter:blur(8px);transition:border-color 0.3s}
+fieldset:hover{border-color:var(--border-bright)}
+legend{padding:0 10px;margin-left:-4px;font-family:'Fraunces',serif;font-weight:500;font-style:italic;font-size:1.05rem;color:var(--accent-bright);letter-spacing:-0.01em}
+.row{display:flex;gap:14px;padding:10px 0;align-items:center;flex-wrap:wrap;border-bottom:1px dashed rgba(42,107,86,0.25)}
+.row:last-child{border-bottom:none}
+label{flex:1;min-width:220px;font-size:0.9rem;color:var(--ink-dim);font-weight:500}
+.hint{display:block;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--ink-faint);margin-top:3px}
+input[type=number]{flex:0 0 130px;padding:10px 12px;background:var(--bg-deep);color:var(--ink);border:1px solid var(--border);border-radius:3px;font-size:0.95rem;font-family:'JetBrains Mono',monospace;font-weight:500;transition:all 0.2s}
+input[type=number]:focus{outline:none;border-color:var(--accent);background:var(--bg-2);box-shadow:0 0 0 3px rgba(52,211,153,0.12)}
+.radio-group{display:flex;gap:6px;flex:0 0 auto;flex-wrap:wrap}
+.radio-group label{flex:0;min-width:auto}
+.radio-group input{position:absolute;opacity:0;width:0;height:0;margin:0}
+.radio-group span{display:inline-block;padding:8px 16px;background:var(--bg-deep);border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:0.85rem;font-weight:500;color:var(--ink-dim);transition:all 0.2s}
+.radio-group span:hover{border-color:var(--border-bright);color:var(--ink)}
+.radio-group input:checked+span{background:var(--accent);color:var(--bg-deep);border-color:var(--accent);font-weight:600;box-shadow:0 0 20px rgba(52,211,153,0.3)}
+.row.field-error{background:rgba(248,113,113,0.08);border-radius:3px;padding-left:8px;padding-right:8px;animation:shake 0.4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.row.field-error label{color:#fca5a5}
+.row.field-error input[type=number]{border-color:var(--red)}
+.row.field-error .radio-group span{border-color:var(--red)}
+.actions{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:20px}
+button{padding:16px 24px;background:var(--accent);color:var(--bg-deep);border:none;border-radius:3px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter Tight',sans-serif;letter-spacing:0.02em;text-transform:uppercase;transition:all 0.2s;position:relative;overflow:hidden}
+button::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transform:translateX(-100%);transition:transform 0.6s}
+button:hover{background:var(--accent-bright);transform:translateY(-1px);box-shadow:0 8px 24px rgba(52,211,153,0.25)}
+button:hover::before{transform:translateX(100%)}
+button.secondary{background:transparent;color:var(--ink-dim);border:1px solid var(--border-bright);box-shadow:none}
+button.secondary:hover{background:var(--surface);color:var(--ink);border-color:var(--accent)}
+
+#result{margin-top:28px;display:none;animation:slideUp 0.4s ease-out}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.verdict-global{padding:28px;border-radius:4px;border:2px solid;margin-bottom:18px;position:relative;overflow:hidden}
+.verdict-global::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:currentColor;opacity:0.6}
+.verdict-global.green{background:linear-gradient(180deg,var(--green-bg),rgba(10,31,26,0.6));border-color:var(--green);color:#d1fae5}
+.verdict-global.orange{background:linear-gradient(180deg,var(--orange-bg),rgba(10,31,26,0.6));border-color:var(--orange);color:#fef3c7}
+.verdict-global.red{background:linear-gradient(180deg,var(--red-bg),rgba(10,31,26,0.6));border-color:var(--red);color:#fee2e2}
+.verdict-icon{font-family:'Fraunces',serif;font-size:2.5rem;font-weight:400;line-height:1;margin-bottom:8px}
+.verdict-title{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:500;letter-spacing:-0.02em;margin-bottom:6px}
+.verdict-sub{font-size:0.88rem;color:var(--ink-dim);font-style:italic}
+.context{padding:14px 18px;background:rgba(15,42,35,0.5);border:1px solid var(--border);border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;line-height:1.7;margin-bottom:14px;color:var(--ink-dim)}
+.context strong{color:var(--accent-bright);font-weight:500}
+.tech-grid{display:grid;gap:12px}
+.tech-card{padding:16px 18px;border-radius:3px;border:1px solid var(--border);background:rgba(15,42,35,0.4);transition:all 0.2s}
+.tech-card.green{border-color:var(--green);background:linear-gradient(180deg,rgba(15,61,46,0.5),rgba(10,31,26,0.4))}
+.tech-card.orange{border-color:var(--orange);background:linear-gradient(180deg,rgba(61,46,15,0.5),rgba(10,31,26,0.4))}
+.tech-card.red{border-color:var(--red);background:linear-gradient(180deg,rgba(61,21,21,0.5),rgba(10,31,26,0.4))}
+.tech-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.tech-name{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:500;letter-spacing:-0.01em}
+.tech-badge{font-family:'JetBrains Mono',monospace;font-size:0.7rem;padding:4px 10px;border-radius:3px;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;border:1px solid currentColor}
+.tech-card.green .tech-badge{color:var(--green)}
+.tech-card.orange .tech-badge{color:var(--orange)}
+.tech-card.red .tech-badge{color:var(--red)}
+.tech-metrics{font-family:'JetBrains Mono',monospace;font-size:0.76rem;color:var(--ink-faint);margin-bottom:10px;line-height:1.6}
+.tech-metrics strong{color:var(--ink-dim);font-weight:500}
+.flags{font-size:0.82rem;line-height:1.55}
+.flags ul{list-style:none;padding-left:0}
+.flags li{padding:3px 0 3px 18px;position:relative;color:var(--ink-dim)}
+.flags li::before{content:'';position:absolute;left:0;top:12px;width:8px;height:1px;background:currentColor;opacity:0.5}
+.flags-title{font-family:'JetBrains Mono',monospace;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink-faint);margin-top:8px;margin-bottom:4px;font-weight:600}
+.tech-card.red .flags-title{color:var(--red)}
+.tech-card.orange .flags-title{color:var(--orange)}
+.flags-title.caveat-title{color:var(--accent-bright);font-style:italic;opacity:0.9}
+.caveat-list li{color:var(--ink-faint);font-style:italic}
+.caveat-list li::before{background:var(--accent);opacity:0.6}
+.tech-card.green .flags-title.caveat-title{color:var(--accent-bright)}
+
+.footer{margin-top:48px;padding:28px 0 16px;border-top:1px solid var(--border);text-align:center;position:relative}
+.footer::before{content:'';position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:60px;height:1px;background:var(--accent)}
+.signature{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:1.15rem;color:var(--accent-bright);margin-bottom:8px}
+.signature .amp{color:var(--ink-faint);font-weight:300;margin:0 4px}
+.copyright{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:16px}
+.disclaimer{font-size:0.72rem;color:var(--ink-faint);max-width:520px;margin:0 auto;line-height:1.6;font-style:italic}
+
+@media (max-width:520px){
+  body{padding:16px 14px}
+  fieldset{padding:16px 14px 12px}
+  .row{flex-direction:column;align-items:stretch;gap:8px}
+  label{min-width:0}
+  input[type=number]{flex:1;width:100%}
+  .radio-group{width:100%}
+  .radio-group label{flex:1}
+  .radio-group span{display:block;text-align:center}
+  .actions{grid-template-columns:1fr}
+  .header{padding-right:90px}
+  .lang-toggle button{padding:5px 10px;font-size:0.65rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="header">
+  <div class="lang-toggle">
+    <button type="button" data-lang="fr" class="active">FR</button>
+    <button type="button" data-lang="en">EN</button>
+  </div>
+  <div class="eyebrow" data-i18n="eyebrow">ESCRS-based refractive screening</div>
+  <h1 data-i18n="title_html">Refractive <em>Triage</em></h1>
+  <p class="subtitle" data-i18n="subtitle">Pré-évaluation LASIK / PRK / SMILE selon guidelines ESCRS 2024, AAO PPP 2022, PTA (Santhiago 2014), BAD-D (Ambrósio 2017), TBI (Ambrósio 2023). Stratification à 3 niveaux : opérable, à discuter, contre-indiqué.</p>
+</header>
+
+<form id="f">
+
+<fieldset>
+<legend data-i18n="sec_patient">Patient</legend>
+<div class="row"><label><span data-i18n="f_age">Âge</span><span class="hint" data-i18n="h_age">années</span></label><input type="number" name="age" min="10" max="99" required></div>
+<div class="row">
+<label><span data-i18n="f_stable">Réfraction stable ≥24 mois</span><span class="hint" data-i18n="h_stable">variation ≤0.5 D</span></label>
+<div class="radio-group">
+<label><input type="radio" name="stable" value="1"><span data-i18n="yes">Oui</span></label>
+<label><input type="radio" name="stable" value="0"><span data-i18n="no">Non</span></label>
+</div>
+</div>
+<div class="row"><label><span data-i18n="f_sphere">Sphère</span><span class="hint" data-i18n="h_sphere">D, ex: −4.25</span></label><input type="number" step="0.25" name="sphere" required></div>
+<div class="row"><label><span data-i18n="f_cyl">Cylindre</span><span class="hint" data-i18n="h_cyl">D, ex: −1.50</span></label><input type="number" step="0.25" name="cyl" required></div>
+<div class="row"><label><span data-i18n="f_oz">Zone optique prévue</span><span class="hint" data-i18n="h_oz">mm — standard 6.0 à 6.5</span></label><input type="number" step="0.1" name="oz" min="5" max="8" value="6.5" required></div>
+</fieldset>
+
+<fieldset>
+<legend data-i18n="sec_cornea">Cornée</legend>
+<div class="row"><label><span data-i18n="f_pachy_c">Pachymétrie centrale</span><span class="hint" data-i18n="h_pachy">µm</span></label><input type="number" name="pachy_c" min="300" max="700" required></div>
+<div class="row"><label><span data-i18n="f_pachy_thin">Pachy point le plus fin</span><span class="hint" data-i18n="h_pachy_thin">thinnest Pentacam / OCT</span></label><input type="number" name="pachy_thin" min="300" max="700" required></div>
+<div class="row"><label><span data-i18n="f_kmax">Kmax</span><span class="hint">D</span></label><input type="number" step="0.1" name="kmax" min="35" max="65" required></div>
+<div class="row"><label><span data-i18n="f_kmax_asym">Asymétrie Kmax OD/OS</span><span class="hint">D</span></label><input type="number" step="0.1" name="kmax_asym" min="0" max="10" required></div>
+<div class="row"><label><span data-i18n="f_bad">BAD-D Belin / Ambrósio</span><span class="hint" data-i18n="h_bad">Pentacam — taper −1 si non dispo</span></label><input type="number" step="0.01" name="bad_d" min="-1" max="10" required></div>
+<div class="row"><label><span data-i18n="f_tbi">TBI</span><span class="hint" data-i18n="h_tbi">Corvis ST + Pentacam — taper −1 si non dispo</span></label><input type="number" step="0.01" name="tbi" min="-1" max="1" required></div>
+</fieldset>
+
+<fieldset>
+<legend data-i18n="sec_risk">Facteurs de risque</legend>
+<div class="row"><label><span data-i18n="f_pupil">Pupille scotopique</span><span class="hint">mm</span></label><input type="number" step="0.1" name="pupil" min="3" max="9" required></div>
+<div class="row">
+<label><span data-i18n="f_patho">Pathologie contre-indiquante</span><span class="hint" data-i18n="h_patho">kératocône, ectasie, herpès cornéen, auto-immune active, grossesse/allaitement, glaucome non contrôlé, cataracte, œil unique fonctionnel, sécheresse sévère non contrôlée</span></label>
+<div class="radio-group">
+<label><input type="radio" name="patho" value="1"><span data-i18n="yes">Oui</span></label>
+<label><input type="radio" name="patho" value="0"><span data-i18n="no">Non</span></label>
+</div>
+</div>
+<div class="row">
+<label data-i18n="f_family_kc">ATCD familiaux kératocône</label>
+<div class="radio-group">
+<label><input type="radio" name="family_kc" value="oui"><span data-i18n="yes">Oui</span></label>
+<label><input type="radio" name="family_kc" value="non"><span data-i18n="no">Non</span></label>
+<label><input type="radio" name="family_kc" value="inconnu"><span>?</span></label>
+</div>
+</div>
+<div class="row">
+<label data-i18n="f_rubbing">Frottement oculaire chronique</label>
+<div class="radio-group">
+<label><input type="radio" name="rubbing" value="1"><span data-i18n="yes">Oui</span></label>
+<label><input type="radio" name="rubbing" value="0"><span data-i18n="no">Non</span></label>
+</div>
+</div>
+</fieldset>
+
+<div class="actions">
+  <button type="submit" data-i18n="btn_evaluate">Évaluer les techniques</button>
+  <button type="reset" class="secondary" data-i18n="btn_reset">Réinitialiser</button>
+</div>
+</form>
+
+<div id="result"></div>
+
+<footer class="footer">
+  <div class="signature">Dr <span class="amp">·</span> Aiglin</div>
+  <div class="copyright" data-i18n="copyright">© 2026 — Tous droits réservés</div>
+  <p class="disclaimer" data-i18n="disclaimer">Outil personnel de pré-tri basé sur les guidelines ESCRS 2024-25 et AAO PPP 2022. Non diagnostique. Décision chirurgicale réservée au praticien après bilan complet.</p>
+</footer>
+
+</div>
+
+<script>
+'use strict';
+
+// ==========================================================================
+// I18N — traductions FR / EN
+// ==========================================================================
+
+const I18N = {
+  fr: {
+    // Header
+    eyebrow: 'Dépistage réfractif basé ESCRS',
+    title_html: 'Refractive <em>Triage</em>',
+    subtitle: 'Pré-évaluation LASIK / PRK / SMILE selon guidelines ESCRS 2024, AAO PPP 2022, PTA (Santhiago 2014), BAD-D (Ambrósio 2017), TBI (Ambrósio 2023). Stratification à 3 niveaux : opérable, à discuter, contre-indiqué.',
+    // Sections
+    sec_patient: 'Patient',
+    sec_cornea: 'Cornée',
+    sec_risk: 'Facteurs de risque',
+    // Labels
+    f_age: 'Âge',         h_age: 'années',
+    f_stable: 'Réfraction stable ≥24 mois', h_stable: 'variation ≤0.5 D',
+    f_sphere: 'Sphère',   h_sphere: 'D, ex: −4.25',
+    f_cyl: 'Cylindre',    h_cyl: 'D, ex: −1.50',
+    f_oz: 'Zone optique prévue', h_oz: 'mm — standard 6.0 à 6.5',
+    f_pachy_c: 'Pachymétrie centrale', h_pachy: 'µm',
+    f_pachy_thin: 'Pachy point le plus fin', h_pachy_thin: 'thinnest Pentacam / OCT',
+    f_kmax: 'Kmax',
+    f_kmax_asym: 'Asymétrie Kmax OD/OS',
+    f_bad: 'BAD-D Belin / Ambrósio', h_bad: 'Pentacam — taper −1 si non dispo',
+    f_tbi: 'TBI', h_tbi: 'Corvis ST + Pentacam — taper −1 si non dispo',
+    f_pupil: 'Pupille scotopique',
+    f_patho: 'Pathologie contre-indiquante',
+    h_patho: 'kératocône, ectasie, herpès cornéen, auto-immune active, grossesse/allaitement, glaucome non contrôlé, cataracte, œil unique fonctionnel, sécheresse sévère non contrôlée',
+    f_family_kc: 'ATCD familiaux kératocône',
+    f_rubbing: 'Frottement oculaire chronique',
+    yes: 'Oui', no: 'Non',
+    // Buttons
+    btn_evaluate: 'Évaluer les techniques',
+    btn_reset: 'Réinitialiser',
+    // Footer
+    copyright: '© 2026 — Tous droits réservés',
+    disclaimer: 'Outil personnel de pré-tri basé sur les guidelines ESCRS 2024-25 et AAO PPP 2022. Non diagnostique. Décision chirurgicale réservée au praticien après bilan complet.',
+    // Validation / erreurs
+    err_missing_title: 'Champs manquants',
+    err_missing_sub: 'Merci de renseigner : ',
+    err_pachy_title: 'Saisie incohérente',
+    err_pachy_sub: (thin, c) => `Pachy thinnest (${thin}) ne peut pas être supérieure à pachy centrale (${c})`,
+    // Verdict labels
+    v_operable: 'OPÉRABLE',
+    v_discuss: 'À DISCUTER',
+    v_contraindic: 'CONTRE-INDIQUÉ',
+    reco_green: (t) => `${t} recommandé`,
+    reco_green_sub_multi: (alts) => `Alternatives également favorables : ${alts.join(', ')}`,
+    reco_green_sub_single: 'Seule technique avec critères ESCRS entièrement remplis',
+    reco_orange_title: 'Aucune technique immédiatement opérable',
+    reco_orange_sub: (techs) => `À discuter après bilan approfondi : ${techs.join(', ')}`,
+    reco_red_title: 'Aucune technique recommandée',
+    reco_red_sub: 'Toutes les techniques présentent au moins une contre-indication. Envisager alternatives : ICL phake, abstention.',
+    // Tech card
+    tc_ablation: 'Ablation',
+    tc_flap: 'Flap',
+    tc_cap: 'Cap',
+    tc_rsb: 'RSB',
+    tc_pta: 'PTA',
+    tc_contraindic_title: 'Contre-indications',
+    tc_fdr_single: (n) => `Facteur de risque : ${n}`,
+    tc_fdr_multi: (n) => `Facteurs de risque : ${n}`,
+    tc_fdr_cumul: (n) => `Facteurs de risque (${n}) — cumul ayant déclenché la contre-indication`,
+    tc_caveat: '∆ Sous réserve',
+    // Context line
+    ctx_se: 'EqSph', ctx_pachy: 'Pachy centrale/thinnest', ctx_kmax: 'Kmax',
+    // Flag messages (stratify)
+    msg: {
+      age_lt: (n) => `Âge < ${n} ans`,
+      stable_no: 'Réfraction non stable ≥24 mois',
+      patho_ci: 'Pathologie / état contre-indiquant',
+      myopia_max: (se, tech, max) => `Myopie ${se.toFixed(2)} D > limite ESCRS ${tech} (−${max} D)`,
+      hyperopia_max: (s, tech, max) => `Hyperopie +${s.toFixed(2)} D > limite ESCRS ${tech} (+${max} D)`,
+      smile_no_hyp: 'SMILE non indiqué pour hyperopie (ESCRS 2024)',
+      cyl_max: (c, tech, max) => `Astigmatisme ${c.toFixed(2)} D > limite ESCRS ${tech} (${max} D)`,
+      pachy_red: (p, th) => `Pachy thinnest ${p} < ${th} µm`,
+      rsb_red: (r, th) => `RSB calculée ${r} µm < ${th} µm`,
+      pta_red: (v, th) => `PTA ${v.toFixed(1)}% ≥ ${th}% (Santhiago 2014)`,
+      bad_red: (v, th) => `BAD-D ${v.toFixed(2)} ≥ ${th} (Ambrósio — suspicion ectasie)`,
+      tbi_red: (v, th) => `TBI ${v.toFixed(2)} ≥ ${th} (Ambrósio 2023)`,
+      age_young: (n) => `Âge ${n} ans — stabilité réfractive à confirmer`,
+      pachy_or: (p, th) => `Pachy thinnest ${p} µm limite (< ${th})`,
+      rsb_or: (r, th) => `RSB ${r} µm limite (< ${th})`,
+      pta_or: (v, lo, hi) => `PTA ${v.toFixed(1)}% limite (${lo}-${hi}%)`,
+      bad_or: (v, lo, hi) => `BAD-D ${v.toFixed(2)} suspect (${lo}-${hi})`,
+      tbi_or: (v, lo, hi) => `TBI ${v.toFixed(2)} suspect (${lo}-${hi})`,
+      kmax_red: (v, th) => `Kmax ${v} D > ${th} — corréler tomographie`,
+      kmax_or: (v, th) => `Kmax ${v} D limite (> ${th})`,
+      kmax_asym_or: (v, th) => `Asymétrie Kmax OD/OS ${v} D > ${th}`,
+      atcd_kc: 'ATCD familiaux kératocône',
+      rubbing: 'Frottement oculaire chronique — facteur de risque ectasie indépendant',
+      pupil_or: (v, th) => `Pupille scotopique ${v} mm > ${th} — risque halos/glare nocturnes`,
+      cumul_fdr: (n, list) => `Cumul de ${n} facteurs de risque : ${list.join(' + ')}`,
+      cav_bad: 'BAD-D non renseigné — à confirmer par Pentacam',
+      cav_tbi: 'TBI non renseigné — à confirmer par Corvis ST + Pentacam'
+    }
+  },
+  en: {
+    // Header
+    eyebrow: 'ESCRS-based refractive screening',
+    title_html: 'Refractive <em>Triage</em>',
+    subtitle: 'Preliminary LASIK / PRK / SMILE evaluation per ESCRS 2024, AAO PPP 2022, PTA (Santhiago 2014), BAD-D (Ambrósio 2017), TBI (Ambrósio 2023). Three-tier stratification: operable, to discuss, contraindicated.',
+    // Sections
+    sec_patient: 'Patient',
+    sec_cornea: 'Cornea',
+    sec_risk: 'Risk factors',
+    // Labels
+    f_age: 'Age',         h_age: 'years',
+    f_stable: 'Stable refraction ≥24 months', h_stable: 'variation ≤0.5 D',
+    f_sphere: 'Sphere',   h_sphere: 'D, e.g. −4.25',
+    f_cyl: 'Cylinder',    h_cyl: 'D, e.g. −1.50',
+    f_oz: 'Planned optical zone', h_oz: 'mm — standard 6.0 to 6.5',
+    f_pachy_c: 'Central pachymetry', h_pachy: 'µm',
+    f_pachy_thin: 'Thinnest pachymetry', h_pachy_thin: 'Pentacam / OCT thinnest',
+    f_kmax: 'Kmax',
+    f_kmax_asym: 'Kmax asymmetry OD/OS',
+    f_bad: 'BAD-D Belin / Ambrósio', h_bad: 'Pentacam — enter −1 if unavailable',
+    f_tbi: 'TBI', h_tbi: 'Corvis ST + Pentacam — enter −1 if unavailable',
+    f_pupil: 'Scotopic pupil',
+    f_patho: 'Contraindicating pathology',
+    h_patho: 'keratoconus, ectasia, herpes keratitis, active autoimmune, pregnancy/lactation, uncontrolled glaucoma, cataract, functional monocular, severe uncontrolled dry eye',
+    f_family_kc: 'Family history keratoconus',
+    f_rubbing: 'Chronic eye rubbing',
+    yes: 'Yes', no: 'No',
+    // Buttons
+    btn_evaluate: 'Evaluate techniques',
+    btn_reset: 'Reset',
+    // Footer
+    copyright: '© 2026 — All rights reserved',
+    disclaimer: 'Personal pre-screening tool based on ESCRS 2024-25 and AAO PPP 2022 guidelines. Non-diagnostic. Surgical decision reserved to the practitioner after complete workup.',
+    // Validation
+    err_missing_title: 'Missing fields',
+    err_missing_sub: 'Please provide: ',
+    err_pachy_title: 'Inconsistent input',
+    err_pachy_sub: (thin, c) => `Thinnest pachymetry (${thin}) cannot exceed central pachymetry (${c})`,
+    // Verdict labels
+    v_operable: 'OPERABLE',
+    v_discuss: 'TO DISCUSS',
+    v_contraindic: 'CONTRAINDICATED',
+    reco_green: (t) => `${t} recommended`,
+    reco_green_sub_multi: (alts) => `Also favorable alternatives: ${alts.join(', ')}`,
+    reco_green_sub_single: 'Only technique fully meeting ESCRS criteria',
+    reco_orange_title: 'No technique immediately operable',
+    reco_orange_sub: (techs) => `To discuss after thorough workup: ${techs.join(', ')}`,
+    reco_red_title: 'No technique recommended',
+    reco_red_sub: 'All techniques present at least one contraindication. Consider alternatives: phakic ICL, abstention.',
+    // Tech card
+    tc_ablation: 'Ablation',
+    tc_flap: 'Flap',
+    tc_cap: 'Cap',
+    tc_rsb: 'RSB',
+    tc_pta: 'PTA',
+    tc_contraindic_title: 'Contraindications',
+    tc_fdr_single: (n) => `Risk factor: ${n}`,
+    tc_fdr_multi: (n) => `Risk factors: ${n}`,
+    tc_fdr_cumul: (n) => `Risk factors (${n}) — cumulative trigger for contraindication`,
+    tc_caveat: '∆ Subject to',
+    // Context line
+    ctx_se: 'SE', ctx_pachy: 'Central/thinnest pachy', ctx_kmax: 'Kmax',
+    // Flag messages
+    msg: {
+      age_lt: (n) => `Age < ${n} years`,
+      stable_no: 'Refraction not stable ≥24 months',
+      patho_ci: 'Contraindicating pathology / condition',
+      myopia_max: (se, tech, max) => `Myopia ${se.toFixed(2)} D > ESCRS ${tech} limit (−${max} D)`,
+      hyperopia_max: (s, tech, max) => `Hyperopia +${s.toFixed(2)} D > ESCRS ${tech} limit (+${max} D)`,
+      smile_no_hyp: 'SMILE not indicated for hyperopia (ESCRS 2024)',
+      cyl_max: (c, tech, max) => `Astigmatism ${c.toFixed(2)} D > ESCRS ${tech} limit (${max} D)`,
+      pachy_red: (p, th) => `Thinnest pachy ${p} < ${th} µm`,
+      rsb_red: (r, th) => `Calculated RSB ${r} µm < ${th} µm`,
+      pta_red: (v, th) => `PTA ${v.toFixed(1)}% ≥ ${th}% (Santhiago 2014)`,
+      bad_red: (v, th) => `BAD-D ${v.toFixed(2)} ≥ ${th} (Ambrósio — ectasia suspicion)`,
+      tbi_red: (v, th) => `TBI ${v.toFixed(2)} ≥ ${th} (Ambrósio 2023)`,
+      age_young: (n) => `Age ${n} — refractive stability to confirm`,
+      pachy_or: (p, th) => `Thinnest pachy ${p} µm borderline (< ${th})`,
+      rsb_or: (r, th) => `RSB ${r} µm borderline (< ${th})`,
+      pta_or: (v, lo, hi) => `PTA ${v.toFixed(1)}% borderline (${lo}-${hi}%)`,
+      bad_or: (v, lo, hi) => `BAD-D ${v.toFixed(2)} suspicious (${lo}-${hi})`,
+      tbi_or: (v, lo, hi) => `TBI ${v.toFixed(2)} suspicious (${lo}-${hi})`,
+      kmax_red: (v, th) => `Kmax ${v} D > ${th} — correlate with tomography`,
+      kmax_or: (v, th) => `Kmax ${v} D borderline (> ${th})`,
+      kmax_asym_or: (v, th) => `Kmax asymmetry OD/OS ${v} D > ${th}`,
+      atcd_kc: 'Family history keratoconus',
+      rubbing: 'Chronic eye rubbing — independent ectasia risk factor',
+      pupil_or: (v, th) => `Scotopic pupil ${v} mm > ${th} — halo/glare risk at night`,
+      cumul_fdr: (n, list) => `Cumulative ${n} risk factors: ${list.join(' + ')}`,
+      cav_bad: 'BAD-D not provided — to confirm with Pentacam',
+      cav_tbi: 'TBI not provided — to confirm with Corvis ST + Pentacam'
+    }
+  }
+};
+
+let currentLang = 'fr';
+function t(key){ return I18N[currentLang][key]; }
+function tm(key){ return I18N[currentLang].msg[key]; }
+
+function applyLanguage(lang){
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  // Mettre à jour tous les éléments data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const val = I18N[lang][key];
+    if(val == null) return;
+    if(key.endsWith('_html')){
+      el.innerHTML = val;
+    } else {
+      el.textContent = val;
+    }
+  });
+  // Boutons toggle
+  document.querySelectorAll('.lang-toggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  // Si un résultat est déjà affiché, le re-render
+  const out = document.getElementById('result');
+  if(out.dataset.lastPayload){
+    try {
+      const {results, d} = JSON.parse(out.dataset.lastPayload);
+      out.innerHTML = renderGlobal(results, d);
+    } catch(_){}
+  }
+}
+
+document.querySelectorAll('.lang-toggle button').forEach(btn => {
+  btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
+});
+
+// ==========================================================================
+// CONSTANTES (seuils)
+// ==========================================================================
+
+const LIMITS = {
+  LASIK:  { myopia_max: 10, hyperopia_max: 5, cyl_max: 6 },
+  PRK:    { myopia_max: 6,  hyperopia_max: 3, cyl_max: 4 },
+  SMILE:  { myopia_max: 10, hyperopia_max: 0, cyl_max: 5 }
+};
+const FLAP_LASIK = 110;
+const CAP_SMILE  = 130;
+const TH = {
+  age_red: 18, age_orange: 21,
+  pachy_thin_red: 480, pachy_thin_orange: 500,
+  rsb_red: 280, rsb_orange: 300,
+  pta_red: 45, pta_orange: 40,
+  bad_d_red: 1.60, bad_d_orange: 1.45,
+  tbi_red: 0.50, tbi_orange: 0.29,
+  kmax_red: 48, kmax_orange: 47,
+  kmax_asym_orange: 1.0, pupil_orange: 6.5
+};
+const MIN_PEDESTAL = { PRK: 5, LASIK: 5, SMILE: 15 };
+
+// ==========================================================================
+// CALCULS
+// ==========================================================================
+
+function computeAblation(sphere, cyl, oz, tech){
+  const absSph = Math.abs(sphere);
+  const absCyl = Math.abs(cyl);
+  const munnerlyn = (oz*oz*absSph)/3 + (oz*oz*absCyl)/3;
+  if(munnerlyn < 0.1) return 0;
+  return Math.round(munnerlyn + MIN_PEDESTAL[tech]);
+}
+
+function computeSurgical(d, tech){
+  const ablation = computeAblation(d.sphere, d.cyl, d.oz, tech);
+  let rsb, pta = null, flap = 0;
+  if(tech === 'LASIK'){
+    flap = FLAP_LASIK;
+    rsb = d.pachy_thin - flap - ablation;
+    pta = (flap + ablation) / d.pachy_c * 100;
+  } else if(tech === 'PRK'){
+    rsb = d.pachy_thin - ablation;
+  } else {
+    flap = CAP_SMILE;
+    rsb = d.pachy_thin - flap - ablation;
+  }
+  return { ablation, rsb, pta, flap };
+}
+
+// ==========================================================================
+// STRATIFICATION
+// ==========================================================================
+
+function stratify(d, tech){
+  const M = I18N[currentLang].msg;
+  const red = [];
+  const orange = [];
+  const caveats = [];
+  const surg = computeSurgical(d, tech);
+  const se = d.sphere + d.cyl / 2;
+  const absSphere = Math.abs(d.sphere);
+  const absCyl = Math.abs(d.cyl);
+  const L = LIMITS[tech];
+
+  // RED
+  if(d.age < TH.age_red) red.push(M.age_lt(TH.age_red));
+  if(!d.stable) red.push(M.stable_no);
+  if(d.patho) red.push(M.patho_ci);
+  if(d.sphere < 0 && absSphere > L.myopia_max){
+    red.push(M.myopia_max(se, tech, L.myopia_max));
+  }
+  if(d.sphere > 0 && d.sphere > L.hyperopia_max){
+    if(tech === 'SMILE') red.push(M.smile_no_hyp);
+    else red.push(M.hyperopia_max(d.sphere, tech, L.hyperopia_max));
+  }
+  if(tech === 'SMILE' && d.sphere > 0) red.push(M.smile_no_hyp);
+  if(absCyl > L.cyl_max) red.push(M.cyl_max(absCyl, tech, L.cyl_max));
+  if(d.pachy_thin < TH.pachy_thin_red) red.push(M.pachy_red(d.pachy_thin, TH.pachy_thin_red));
+  if(surg.rsb < TH.rsb_red) red.push(M.rsb_red(surg.rsb, TH.rsb_red));
+  if(surg.pta !== null && surg.pta >= TH.pta_red) red.push(M.pta_red(surg.pta, TH.pta_red));
+  if(d.bad_d >= 0 && d.bad_d >= TH.bad_d_red) red.push(M.bad_red(d.bad_d, TH.bad_d_red));
+  if(d.tbi >= 0 && d.tbi >= TH.tbi_red) red.push(M.tbi_red(d.tbi, TH.tbi_red));
+
+  // ORANGE (vrais FDR)
+  if(d.age >= TH.age_red && d.age < TH.age_orange) orange.push(M.age_young(d.age));
+  if(d.pachy_thin >= TH.pachy_thin_red && d.pachy_thin < TH.pachy_thin_orange){
+    orange.push(M.pachy_or(d.pachy_thin, TH.pachy_thin_orange));
+  }
+  if(surg.rsb >= TH.rsb_red && surg.rsb < TH.rsb_orange) orange.push(M.rsb_or(surg.rsb, TH.rsb_orange));
+  if(surg.pta !== null && surg.pta >= TH.pta_orange && surg.pta < TH.pta_red){
+    orange.push(M.pta_or(surg.pta, TH.pta_orange, TH.pta_red));
+  }
+  if(d.bad_d >= TH.bad_d_orange && d.bad_d < TH.bad_d_red){
+    orange.push(M.bad_or(d.bad_d, TH.bad_d_orange, TH.bad_d_red));
+  }
+  if(d.tbi >= TH.tbi_orange && d.tbi < TH.tbi_red){
+    orange.push(M.tbi_or(d.tbi, TH.tbi_orange, TH.tbi_red));
+  }
+  if(d.kmax > TH.kmax_red) orange.push(M.kmax_red(d.kmax, TH.kmax_red));
+  else if(d.kmax > TH.kmax_orange) orange.push(M.kmax_or(d.kmax, TH.kmax_orange));
+  if(d.kmax_asym > TH.kmax_asym_orange) orange.push(M.kmax_asym_or(d.kmax_asym, TH.kmax_asym_orange));
+  if(d.family_kc === 'oui') orange.push(M.atcd_kc);
+  if(d.rubbing) orange.push(M.rubbing);
+  if(d.pupil > TH.pupil_orange) orange.push(M.pupil_or(d.pupil, TH.pupil_orange));
+
+  // CAVEATS (données manquantes)
+  if(d.bad_d < 0) caveats.push(M.cav_bad);
+  if(d.tbi < 0) caveats.push(M.cav_tbi);
+
+  // Règle cumul 2+ FDR → red
+  const fdrCount = orange.length;
+  let cumulRed = false;
+  if(red.length === 0 && fdrCount >= 2){
+    red.push(M.cumul_fdr(fdrCount, orange));
+    cumulRed = true;
+  }
+
+  let status = red.length ? 'red' : (orange.length ? 'orange' : 'green');
+  return { status, red, orange, caveats, surg, se, fdrCount, cumulRed };
+}
+
+// ==========================================================================
+// RENDU
+// ==========================================================================
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderTechCard(tech, r){
+  const labels = {
+    green:  ['●', t('v_operable')],
+    orange: ['◐', t('v_discuss')],
+    red:    ['✕', t('v_contraindic')]
+  };
+  const [icon, label] = labels[r.status];
+  const m = r.surg;
+  let metrics = `<strong>${t('tc_ablation')}:</strong> ${m.ablation} µm`;
+  if(m.flap) metrics += `  ·  <strong>${tech === 'SMILE' ? t('tc_cap') : t('tc_flap')}:</strong> ${m.flap} µm`;
+  metrics += `  ·  <strong>${t('tc_rsb')}:</strong> ${m.rsb} µm`;
+  if(m.pta !== null) metrics += `  ·  <strong>${t('tc_pta')}:</strong> ${m.pta.toFixed(1)}%`;
+
+  let flagsHtml = '';
+  if(r.red.length){
+    flagsHtml += `<div class="flags-title">${t('tc_contraindic_title')}</div><ul>${r.red.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>`;
+  }
+  if(r.orange.length){
+    let title;
+    if(r.status === 'red') title = t('tc_fdr_cumul')(r.fdrCount);
+    else if(r.fdrCount > 1) title = t('tc_fdr_multi')(r.fdrCount);
+    else title = t('tc_fdr_single')(r.fdrCount);
+    flagsHtml += `<div class="flags-title">${title}</div><ul>${r.orange.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>`;
+  }
+  if(r.caveats.length){
+    flagsHtml += `<div class="flags-title caveat-title">${t('tc_caveat')}</div><ul class="caveat-list">${r.caveats.map(x => `<li>${escapeHtml(x)}</li>`).join('')}</ul>`;
+  }
+
+  return `<div class="tech-card ${r.status}">
+    <div class="tech-header">
+      <div class="tech-name">${icon} ${tech}</div>
+      <div class="tech-badge">${label}</div>
+    </div>
+    <div class="tech-metrics">${metrics}</div>
+    <div class="flags">${flagsHtml}</div>
+  </div>`;
+}
+
+function renderGlobal(results, d){
+  const order = ['LASIK', 'SMILE', 'PRK'];
+  const greens = order.filter(x => results[x].status === 'green');
+  const oranges = order.filter(x => results[x].status === 'orange');
+
+  let status, icon, title, sub;
+  if(greens.length > 0){
+    status = 'green'; icon = '●';
+    title = t('reco_green')(greens[0]);
+    sub = greens.length > 1 ? t('reco_green_sub_multi')(greens.slice(1)) : t('reco_green_sub_single');
+  } else if(oranges.length > 0){
+    status = 'orange'; icon = '◐';
+    title = t('reco_orange_title');
+    sub = t('reco_orange_sub')(oranges);
+  } else {
+    status = 'red'; icon = '✕';
+    title = t('reco_red_title');
+    sub = t('reco_red_sub');
+  }
+
+  const se = d.sphere + d.cyl / 2;
+  const ctx = `<strong>${t('ctx_se')}</strong> ${se >= 0 ? '+' : ''}${se.toFixed(2)} D  ·  ` +
+              `<strong>${t('ctx_pachy')}</strong> ${d.pachy_c}/${d.pachy_thin} µm  ·  ` +
+              `<strong>${t('ctx_kmax')}</strong> ${d.kmax} D` +
+              (d.bad_d >= 0 ? `  ·  <strong>BAD-D</strong> ${d.bad_d.toFixed(2)}` : '') +
+              (d.tbi >= 0 ? `  ·  <strong>TBI</strong> ${d.tbi.toFixed(2)}` : '');
+
+  return `
+    <div class="verdict-global ${status}">
+      <div class="verdict-icon">${icon}</div>
+      <div class="verdict-title">${escapeHtml(title)}</div>
+      <div class="verdict-sub">${escapeHtml(sub)}</div>
+    </div>
+    <div class="context">${ctx}</div>
+    <div class="tech-grid">
+      ${order.map(x => renderTechCard(x, results[x])).join('')}
+    </div>
+  `;
+}
+
+// ==========================================================================
+// SOUMISSION
+// ==========================================================================
+
+function handleSubmit(e){
+  if(e) e.preventDefault();
+  const form = document.getElementById('f');
+  const fd = new FormData(form);
+
+  const requiredFields = ['age','sphere','cyl','oz','pachy_c','pachy_thin','kmax','kmax_asym','bad_d','tbi','pupil'];
+  const missing = [];
+  for(const f of requiredFields){
+    const v = fd.get(f);
+    if(v === null || v === '' || isNaN(+v)) missing.push(f);
+  }
+  const requiredRadios = ['stable','patho','family_kc','rubbing'];
+  for(const r of requiredRadios){ if(!fd.get(r)) missing.push(r); }
+
+  document.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+
+  if(missing.length){
+    missing.forEach(name => {
+      const el = form.querySelector(`[name="${name}"]`);
+      if(el){
+        const row = el.closest('.row') || el.closest('fieldset');
+        if(row) row.classList.add('field-error');
+      }
+    });
+    const out = document.getElementById('result');
+    out.innerHTML = `<div class="verdict-global red">
+      <div class="verdict-icon">⚠</div>
+      <div class="verdict-title">${t('err_missing_title')}</div>
+      <div class="verdict-sub">${t('err_missing_sub')}${missing.join(', ')}</div>
+    </div>`;
+    out.style.display = 'block';
+    delete out.dataset.lastPayload;
+    const firstMissing = form.querySelector('.field-error');
+    if(firstMissing) firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const d = {
+    age: +fd.get('age'),
+    stable: fd.get('stable') === '1',
+    sphere: +fd.get('sphere'),
+    cyl: +fd.get('cyl'),
+    oz: +fd.get('oz'),
+    pachy_c: +fd.get('pachy_c'),
+    pachy_thin: +fd.get('pachy_thin'),
+    kmax: +fd.get('kmax'),
+    kmax_asym: +fd.get('kmax_asym'),
+    bad_d: +fd.get('bad_d'),
+    tbi: +fd.get('tbi'),
+    pupil: +fd.get('pupil'),
+    patho: fd.get('patho') === '1',
+    family_kc: fd.get('family_kc'),
+    rubbing: fd.get('rubbing') === '1'
+  };
+
+  if(d.pachy_thin > d.pachy_c){
+    const out = document.getElementById('result');
+    out.innerHTML = `<div class="verdict-global red">
+      <div class="verdict-icon">⚠</div>
+      <div class="verdict-title">${t('err_pachy_title')}</div>
+      <div class="verdict-sub">${t('err_pachy_sub')(d.pachy_thin, d.pachy_c)}</div>
+    </div>`;
+    out.style.display = 'block';
+    delete out.dataset.lastPayload;
+    out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+
+  const results = {
+    LASIK: stratify(d, 'LASIK'),
+    PRK:   stratify(d, 'PRK'),
+    SMILE: stratify(d, 'SMILE')
+  };
+
+  const out = document.getElementById('result');
+  out.innerHTML = renderGlobal(results, d);
+  out.style.display = 'block';
+  // Sauvegarder pour re-render si changement langue
+  out.dataset.lastPayload = JSON.stringify({results, d});
+  out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.getElementById('f').addEventListener('submit', handleSubmit);
+
+// Init langue (par défaut FR, détection optionnelle)
+applyLanguage('fr');
+</script>
+</body>
+</html>
